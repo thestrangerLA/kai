@@ -1,0 +1,133 @@
+{
+  "entities": {
+    "Transaction": {
+      "title": "Transaction",
+      "description": "A farm accounting transaction record (income, expense, or wallet transfer).",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The authenticated user UID who owns this transaction.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "date": {
+          "type": "string",
+          "description": "Transaction date in YYYY-MM-DD format.",
+          "minLength": 10,
+          "maxLength": 10,
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "type": {
+          "type": "string",
+          "description": "Transaction type.",
+          "enum": ["income", "expense", "transfer"],
+          "maxLength": 20
+        },
+        "account": {
+          "type": "string",
+          "description": "Wallet account channel.",
+          "enum": ["bank", "cash"],
+          "maxLength": 20
+        },
+        "center": {
+          "type": "string",
+          "description": "Profit center category.",
+          "enum": ["chicken", "overhead"],
+          "maxLength": 20
+        },
+        "cat": {
+          "type": "string",
+          "description": "Transaction category label.",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "amt": {
+          "type": "number",
+          "description": "Transaction amount in LAK (₭)."
+        },
+        "note": {
+          "type": "string",
+          "description": "Optional note or description.",
+          "maxLength": 500
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the transaction was created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the transaction was last updated."
+        }
+      },
+      "required": [
+        "userId",
+        "date",
+        "type",
+        "account",
+        "center",
+        "cat",
+        "amt",
+        "note",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "WalletSetting": {
+      "title": "WalletSetting",
+      "description": "Opening balances for bank and cash wallets owned by a user.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The authenticated user UID who owns these wallet settings.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "initialBank": {
+          "type": "number",
+          "description": "Opening balance for the bank account in LAK (₭)."
+        },
+        "initialCash": {
+          "type": "number",
+          "description": "Opening balance for cash in hand in LAK (₭)."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the wallet setting was created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the wallet setting was last updated."
+        }
+      },
+      "required": [
+        "userId",
+        "initialBank",
+        "initialCash",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/transactions/{transactionId}": {
+      "schema": {
+        "$ref": "#/entities/Transaction"
+      },
+      "description": "Stores individual farm accounting transactions scoped per user."
+    },
+    "/wallet_settings/{userId}": {
+      "schema": {
+        "$ref": "#/entities/WalletSetting"
+      },
+      "description": "Stores opening bank and cash balances for each authenticated user."
+    }
+  }
+}

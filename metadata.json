@@ -1,0 +1,6 @@
+{
+  "name": "Farm Accounting & Profit Center Ledger",
+  "description": "ລະບົບບັນຊີຟາມ & ບັນທຶກລາຍຮັບ-ລາຍຈ່າຍ (Farm Accounting & Profit Center System) - Comprehensive financial tracking, wallet balances, and profit center analysis for livestock farming.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ລະບົບບັນຊີຟາມ & ບັນທຶກລາຍຮັບ-ລາຍຈ່າຍ (Farm Accounting System)</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f3f6f4;
+  --card: #ffffff;
+  --ink: #1e293b;
+  --mute: #64748b;
+  --line: #e2e8f0;
+  --primary: #1e3a8a;
+  --primary-hover: #172554;
+  --primary-light: #eff6ff;
+  --success: #16a34a;
+  --success-light: #dcfce7;
+  --danger: #dc2626;
+  --danger-light: #fee2e2;
+  --accent: #d97706;
+  --accent-light: #fef3c7;
+  --info: #0284c7;
+  --info-light: #e0f2fe;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Noto Sans Lao', 'Sarabun', sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+  color: white;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+header h1 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+.grid-6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+
+@media (max-width: 1024px) {
+  .grid-5, .grid-6 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .grid-2, .grid-3, .grid-4, .grid-5, .grid-6 { grid-template-columns: 1fr; }
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 22px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  margin-bottom: 22px;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px dashed var(--line);
+  padding-bottom: 12px;
+}
+
+.stat-box {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+  transition: all 0.2s ease;
+}
+.stat-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+}
+
+.stat-val { font-size: 22px; font-weight: 700; color: var(--primary); }
+.stat-lbl { font-size: 13px; color: var(--mute); margin-top: 4px; }
+
+.form-group {
+  margin-bottom: 16px;
+}
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #334155;
+}
+.form-control {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  background: #fff;
+  transition: border-color 0.2s;
+}
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+}
+
+.btn {
+  background: var(--primary);
+  color: #fff;
+  border: 0;
+  padding: 11px 20px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn:hover { background: var(--primary-hover); }
+.btn-outline {
+  background: transparent;
+  color: var(--primary);
+  border: 1.5px solid var(--primary);
+}
+.btn-outline:hover {
+  background: var(--primary-light);
+}
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+  border: 0;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-danger:hover { opacity: 0.85; }
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.badge-success { background: var(--success-light); color: var(--success); }
+.badge-warning { background: var(--accent-light); color: var(--accent); }
+.badge-info { background: var(--info-light); color: var(--info); }
+.badge-danger { background: var(--danger-light); color: var(--danger); }
+
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 14px; }
+th { background: #f8fafc; color: var(--mute); text-align: left; font-weight: 600; }
+tr:hover td { background-color: #f8fafc; }
+
+@media print {
+  header, .btn, button, form, .no-print { display: none !important; }
+  body { background: #fff; color: #000; font-size: 12pt; }
+  .card { border: 1px solid #ccc; box-shadow: none; padding: 12px; }
+  main { max-width: 100%; padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📊 ລະບົບບັນຊີຟາມ & ບັນທຶກລາຍຮັບ-ລາຍຈ່າຍ (Farm Financial & Profit Center Ledger)</h1>
+  <div style="display:flex; gap:10px;">
+    <button class="btn btn-outline" style="color:#fff; border-color:rgba(255,255,255,0.4);" onclick="exportCSV()">📥 Export CSV</button>
+    <button class="btn btn-outline" style="color:#fff; border-color:rgba(255,255,255,0.4);" onclick="window.print()">🖨️ ພິມລາຍງານ (Print)</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- 1. REAL ACCOUNT BALANCES & EXECUTIVE SUMMARY BANNER -->
+  <div class="card" style="background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); color:white; padding:24px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+      <div>
+        <span class="badge" style="background:#fef08a; color:#854d0e; margin-bottom:8px;">💰 ຍອດເງິນຕົວຈິງໃນບັນຊີ (REAL CASH & BANK BALANCES)</span>
+        <h2 style="margin:0 0 6px; color:#ffffff; font-size:24px;">ກະເປົາເງິນສົດ & ບັນຊີທະນາຄານ (Account Wallets)</h2>
+        <p style="margin:0; opacity:0.92; font-size:14px;">
+          ອັບເດດຍອດເງິນອັດຕະໂນມັດເມື່ອມີການບັນທຶກລາຍຮັບ-ລາຍຈ່າຍ | ຮອງຮັບການໂອນປ່ຽນບັນຊີ (ຖອນເງິນສົດ ⇄ ຝາກເຂົ້າທະນາຄານ)
+        </p>
+      </div>
+
+      <div style="display:flex; gap:14px; flex-wrap:wrap;">
+        <div style="background:rgba(255,255,255,0.15); padding:12px 20px; border-radius:12px; backdrop-filter:blur(6px); text-align:center; min-width:130px;">
+          <div style="font-size:13px; opacity:0.9;">🏦 ບັນຊີທະນາຄານ (Bank)</div>
+          <div style="font-size:22px; font-weight:700; color:#93c5fd; margin-top:2px;" id="bal-bank-disp">0 ₭</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.15); padding:12px 20px; border-radius:12px; backdrop-filter:blur(6px); text-align:center; min-width:130px;">
+          <div style="font-size:13px; opacity:0.9;">💵 ເງິນສົດໃນມື (Cash)</div>
+          <div style="font-size:22px; font-weight:700; color:#86efac; margin-top:2px;" id="bal-cash-disp">0 ₭</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.25); padding:12px 22px; border-radius:12px; backdrop-filter:blur(6px); text-align:center; min-width:150px; border:1px solid rgba(255,255,255,0.3);">
+          <div style="font-size:13px; opacity:0.95;">💎 ລວມເງິນພ້ອມໃຊ້ (Total)</div>
+          <div style="font-size:24px; font-weight:700; color:#fef08a; margin-top:2px;" id="bal-total-disp">0 ₭</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. TOTAL FINANCIAL PERFORMANCE METRICS -->
+  <div class="grid-3" style="margin-bottom:22px;">
+    <div class="stat-box" style="border-top:4px solid var(--success);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <span class="stat-lbl" style="font-size:14px; font-weight:600; color:#15803d;">🟢 ລາຍຮັບລວມທັງໝົດ (Total Revenue)</span>
+        <span style="font-size:20px;">📈</span>
+      </div>
+      <div class="stat-val" style="color:var(--success); font-size:26px;" id="top-grand-income">0 ₭</div>
+      <div style="font-size:12px; color:var(--mute); margin-top:4px;">ຈາກການຂາຍຜົນຜະລິດສັດ 5 ຊະນິດ</div>
+    </div>
+
+    <div class="stat-box" style="border-top:4px solid var(--danger);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <span class="stat-lbl" style="font-size:14px; font-weight:600; color:#b91c1c;">🔴 ລາຍຈ່າຍລວມທັງໝົດ (Total Expense)</span>
+        <span style="font-size:20px;">📉</span>
+      </div>
+      <div class="stat-val" style="color:var(--danger); font-size:26px;" id="top-grand-expense">0 ₭</div>
+      <div style="font-size:12px; color:var(--mute); margin-top:4px;">ຕົ້ນທຶນກົງ + ຕົ້ນທຶນປັນສ່ວນສ່ວນກາງ</div>
+    </div>
+
+    <div class="stat-box" style="border-top:4px solid var(--primary);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <span class="stat-lbl" style="font-size:14px; font-weight:600; color:var(--primary);">💰 ກຳໄລສຸດທິລວມ (Net Profit)</span>
+        <span style="font-size:20px;">🏆</span>
+      </div>
+      <div class="stat-val" style="color:var(--primary); font-size:26px;" id="top-grand-net">0 ₭</div>
+      <div style="font-size:12px; color:var(--mute); margin-top:4px;" id="top-grand-margin">Margin: 0%</div>
+    </div>
+  </div>
+
+  <!-- 3. PROFIT CENTER MINI CARDS -->
+  <div class="card" style="margin-bottom:22px;">
+    <h3 class="card-title">
+      <span>🎯 ຜົນກຳໄລແຍກຕາມສູນກຳໄລ (Livestock Profit Centers)</span>
+      <span style="font-size:13px; font-weight:normal; color:var(--mute);">ຄຳນວນຈາກລາຍຮັບລົບຕົ້ນທຶນກົງຂອງສັດແຕ່ລະຊະນິດ</span>
+    </h3>
+    <div class="grid-5">
+      <div class="stat-box" style="background:#f8fafc;">
+        <div style="font-size:14px; font-weight:700; color:var(--primary);">🐔 1. ໄກ່ (Chicken)</div>
+        <div class="stat-val" style="font-size:18px; margin:6px 0;" id="pc-profit-chicken">0 ₭</div>
+        <div class="stat-lbl" id="pc-sub-chicken" style="font-size:12px;">ຮັບ: 0 | ຈ່າຍ: 0</div>
+      </div>
+      <div class="stat-box" style="background:#f8fafc;">
+        <div style="font-size:14px; font-weight:700; color:var(--primary);">🦆 2. ເປັດ (Duck)</div>
+        <div class="stat-val" style="font-size:18px; margin:6px 0;" id="pc-profit-duck">0 ₭</div>
+        <div class="stat-lbl" id="pc-sub-duck" style="font-size:12px;">ຮັບ: 0 | ຈ່າຍ: 0</div>
+      </div>
+      <div class="stat-box" style="background:#f8fafc;">
+        <div style="font-size:14px; font-weight:700; color:var(--primary);">🐟 3. ປາດຸກ (Catfish)</div>
+        <div class="stat-val" style="font-size:18px; margin:6px 0;" id="pc-profit-catfish">0 ₭</div>
+        <div class="stat-lbl" id="pc-sub-catfish" style="font-size:12px;">ຮັບ: 0 | ຈ່າຍ: 0</div>
+      </div>
+      <div class="stat-box" style="background:#f8fafc;">
+        <div style="font-size:14px; font-weight:700; color:var(--primary);">🐐 4. ແພະ (Goat)</div>
+        <div class="stat-val" style="font-size:18px; margin:6px 0;" id="pc-profit-goat">0 ₭</div>
+        <div class="stat-lbl" id="pc-sub-goat" style="font-size:12px;">ຮັບ: 0 | ຈ່າຍ: 0</div>
+      </div>
+      <div class="stat-box" style="background:#f8fafc;">
+        <div style="font-size:14px; font-weight:700; color:var(--primary);">🐄 5. ງົວ (Cattle)</div>
+        <div class="stat-val" style="font-size:18px; margin:6px 0;" id="pc-profit-cattle">0 ₭</div>
+        <div class="stat-lbl" id="pc-sub-cattle" style="font-size:12px;">ຮັບ: 0 | ຈ່າຍ: 0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. CONSOLIDATED PROFIT & LOSS TABLE -->
+  <div class="card">
+    <h3 class="card-title">
+      <span>📊 ຕາຕະລາງວິເຄາະກຳໄລ-ຂາດທຶນ (Profit & Loss Statement)</span>
+      <span class="badge badge-info">ແຍກສູນກຳໄລ + ຕົ້ນທຶນປັນສ່ວນສ່ວນກາງ</span>
+    </h3>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>ສູນກຳໄລ (Livestock Profit Center)</th>
+            <th style="text-align:right;">ລາຍຮັບລວມ</th>
+            <th style="text-align:right;">ຕົ້ນທຶນທາງກົງ</th>
+            <th style="text-align:right;">ກຳໄລຂັ້ນຕົ້ນ</th>
+            <th style="text-align:center;">ອັດຕາກຳໄລ (Margin)</th>
+            <th style="text-align:center;">ສະຖານະ</th>
+          </tr>
+        </thead>
+        <tbody id="pnl-live-tbody">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 5. TRANSACTION FORM & HISTORY LIST -->
+  <div class="grid-2">
+    <!-- Form -->
+    <div class="card no-print">
+      <h3 class="card-title">
+        <span>➕ ບັນທຶກລາຍການໃໝ່ (New Transaction Entry)</span>
+      </h3>
+      
+      <form id="tx-form" onsubmit="addTransaction(event)">
+        <div class="grid-2">
+          <div class="form-group">
+            <label>📅 ວັນທີບັນທຶກ (Date):</label>
+            <input type="date" id="tx-date" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label>🏷️ ປະເພດລາຍການ (Type):</label>
+            <select id="tx-type" class="form-control" onchange="onTypeChanged()" required>
+              <option value="income">🟢 ລາຍຮັບ (+ ເງິນເຂົ້າບັນຊີອັດຕະໂນມັດ)</option>
+              <option value="expense">🔴 ລາຍຈ່າຍ (- ຫັກເງິນອອກຈາກບັນຊີອັດຕະໂນມັດ)</option>
+              <option value="transfer">🔄 ໂອນປ່ຽນບັນຊີ (ຖອນເງິນສົດ / ຝາກເງິນເຂົ້າທະນາຄານ)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label>💳 ຊ່ອງທາງການເງິນ (Wallet):</label>
+            <select id="tx-account" class="form-control" required>
+              <option value="bank">🏦 ບັນຊີທະນາຄານ (Bank Account)</option>
+              <option value="cash">💵 ເງິນສົດໃນມື (Cash in Hand)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>🎯 ສູນກຳໄລ (Profit Center):</label>
+            <select id="tx-center" class="form-control" required>
+              <option value="chicken">🐔 1. ຟາມໄກ່ (Chicken)</option>
+              <option value="duck">🦆 2. ຟາມເປັດ (Duck - ໄຂ່/ຊີ້ນ)</option>
+              <option value="catfish">🐟 3. ຟາມປາດຸກ (Catfish)</option>
+              <option value="goat">🐐 4. ຟາມແພະ (Goat)</option>
+              <option value="cattle">🐄 5. ຟາມງົວ (Cattle)</option>
+              <option value="overhead">🏢 6. ສ່ວນກາງ/ປັນສ່ວນ (Farm Overhead)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label>📁 ໝວດໝູ່ລາຍການ (Category):</label>
+            <select id="tx-cat" class="form-control" required>
+              <option value="ຂາຍຜົນຜະລິດ">ຂາຍຜົນຜະລິດ (ໄກ່/ໄຂ່/ປາ/ແພະ/ງົວ/ຝຸ່ນ)</option>
+              <option value="ຄ່າແນວພັນສັດ">ຄ່າແນວພັນສັດ (ລູກໄກ່/ລູກເປັດ/ລູກປາ/ແພະ/ງົວ)</option>
+              <option value="ຄ່າຫົວອາຫານ">ຄ່າຫົວອາຫານ (ອາຫານສຳເລັດຮູບ/ຮຳ/ສາລີ/ຫຍ້າ)</option>
+              <option value="ຄ່າຍາແລະວັກຊີນ">ຄ່າຍາ, ວັກຊີນ ແລະ ເວຊະພັນ</option>
+              <option value="ຄ່ານ້ຳ-ຄ່າໄຟ">ຄ່ານ້ຳປະປາ / ຄ່າໄຟຟ້າ (ຕົ້ນທຶນປັນສ່ວນ)</option>
+              <option value="ຄ່າແຮງງານ">ຄ່າແຮງງານຄົນງານຟາມ (ຕົ້ນທຶນປັນສ່ວນ)</option>
+              <option value="ຄ່າອຸປະກອນ">ຄ່າອຸປະກອນ ແລະ ສ້ອມແປງ (ຕົ້ນທຶນປັນສ່ວນ)</option>
+              <option value="🔄 ຖອນເງິນສົດ (ປ່ຽນເງິນໂອນເປັນເງິນສົດ)">🔄 ຖອນເງິນສົດ (ປ່ຽນເງິນໂອນ ➔ ເງິນສົດ)</option>
+              <option value="🔄 ຝາກເງິນສົດ (ປ່ຽນເງິນສົດເປັນເງິນໂອນ)">🔄 ຝາກເງິນສົດ (ປ່ຽນເງິນສົດ ➔ ເງິນໂອນ)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>💰 ຈຳນວນເງິນ (Amount):</label>
+            <input type="number" id="tx-amt" class="form-control" placeholder="0.00" min="1" step="any" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>📝 ລາຍລະອຽດ / ໝາຍເຫດ (Description / Note):</label>
+          <input type="text" id="tx-note" class="form-control" placeholder="ຕົວຢ່າງ: ຂາຍໄກ່ບ້ານ 30 ໂຕ, ຊື້ຫົວອາຫານເປັດ...">
+        </div>
+
+        <button type="submit" class="btn" style="width:100%; padding:12px; font-size:15px;">
+          💾 ບັນທຶກລາຍການ & ອັບເດດຍອດເງິນອັດຕະໂນມັດ
+        </button>
+      </form>
+    </div>
+
+    <!-- History Table & Filter -->
+    <div class="card">
+      <div class="card-title">
+        <span>📜 ປະຫວັດການລົງບັນຊີ (Transaction History)</span>
+        <button class="btn btn-outline no-print" style="padding:5px 12px; font-size:12px;" onclick="resetTransactions()">
+          🔄 ລ້າງຂໍ້ມູນ/ຣີເຊັດ
+        </button>
+      </div>
+
+      <div class="grid-2 no-print" style="margin-bottom:14px;">
+        <div>
+          <label style="font-size:12px; font-weight:600; color:var(--mute);">ກັ່ນຕອງຕາມສູນກຳໄລ:</label>
+          <select id="tx-filter" class="form-control" onchange="renderTxTable()" style="margin-top:4px;">
+            <option value="all">🔍 ສະແດງທຸກສູນກຳໄລ (All Profit Centers)</option>
+            <option value="chicken">🐔 ສະເພາະ: ໄກ່</option>
+            <option value="duck">🦆 ສະເພາະ: ເປັດ</option>
+            <option value="catfish">🐟 ສະເພາະ: ປາດຸກ</option>
+            <option value="goat">🐐 ສະເພາະ: ແພະ</option>
+            <option value="cattle">🐄 ສະເພາະ: ງົວ</option>
+            <option value="overhead">🏢 ສະເພາະ: ສ່ວນກາງ</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px; font-weight:600; color:var(--mute);">ກັ່ນຕອງຕາມປະເພດ:</label>
+          <select id="tx-filter-type" class="form-control" onchange="renderTxTable()" style="margin-top:4px;">
+            <option value="all">🔍 ທຸກປະເພດ (ລາຍຮັບ / ລາຍຈ່າຍ / ໂອນ)</option>
+            <option value="income">🟢 ສະເພາະ: ລາຍຮັບ</option>
+            <option value="expense">🔴 ສະເພາະ: ລາຍຈ່າຍ</option>
+            <option value="transfer">🔄 ສະເພາະ: ໂອນປ່ຽນບັນຊີ</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="max-height:450px; overflow-y:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>ວັນທີ</th>
+              <th>ສູນກຳໄລ / ຊ່ອງທາງ</th>
+              <th>ລາຍການ & ໝາຍເຫດ</th>
+              <th style="text-align:right;">ຈຳນວນເງິນ</th>
+              <th style="text-align:center;" class="no-print">ຈັດການ</th>
+            </tr>
+          </thead>
+          <tbody id="tx-tbody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+let bankBalance = 50000;
+let cashBalance = 10000;
+let transactions = [];
+
+const centerNames = {
+  chicken: '🐔 ໄກ່ (Chicken)',
+  duck: '🦆 ເປັດ (Duck)',
+  catfish: '🐟 ປາດຸກ (Catfish)',
+  goat: '🐐 ແພະ (Goat)',
+  cattle: '🐄 ງົວ (Cattle)',
+  overhead: '🏢 ສ່ວນກາງ (Overhead)'
+};
+
+const accountNames = {
+  bank: '🏦 ທະນາຄານ',
+  cash: '💵 ເງິນສົດ'
+};
+
+function onTypeChanged() {
+  const tType = document.getElementById('tx-type').value;
+  const catEl = document.getElementById('tx-cat');
+  if (tType === 'transfer') {
+    catEl.value = '🔄 ຖອນເງິນສົດ (ປ່ຽນເງິນໂອນເປັນເງິນສົດ)';
+  } else if (tType === 'income') {
+    if (catEl.value.includes('ປ່ຽນເງິນ')) catEl.value = 'ຂາຍຜົນຜະລິດ';
+  } else if (tType === 'expense') {
+    if (catEl.value.includes('ປ່ຽນເງິນ')) catEl.value = 'ຄ່າຫົວອາຫານ';
+  }
+}
+
+function initTransactions() {
+  const todayStr = new Date().toISOString().slice(0, 10);
+  if (document.getElementById('tx-date')) {
+    document.getElementById('tx-date').value = todayStr;
+  }
+
+  const savedBal = localStorage.getItem('farm_account_balances');
+  if (savedBal) {
+    try {
+      const b = JSON.parse(savedBal);
+      bankBalance = b.bank ?? 50000;
+      cashBalance = b.cash ?? 10000;
+    } catch(e) {}
+  }
+
+  const savedTx = localStorage.getItem('farm_transactions');
+  if (savedTx) {
+    try {
+      transactions = JSON.parse(savedTx);
+      // Migrate any Thai labels to bilingual
+      updateAccountBalances();
+      calculateProfitCenters();
+      renderTxTable();
+      return;
+    } catch(e) {}
+  }
+
+  // Default seed transactions
+  transactions = [
+    { id: 't1', date: todayStr, type: 'income', account: 'bank', center: 'chicken', cat: 'ຂາຍຜົນຜະລິດ', amt: 14280, note: 'ຂາຍໄກ່ບ້ານ 120 ໂຕ (ໂອນເຂົ້າທະນາຄານ)' },
+    { id: 't2', date: todayStr, type: 'expense', account: 'bank', center: 'chicken', cat: 'ຄ່າຫົວອາຫານ', amt: 5488, note: 'ຊື້ຫົວອາຫານໄກ່ບ້ານ + ຮຳ' },
+    { id: 't3', date: todayStr, type: 'expense', account: 'cash', center: 'chicken', cat: 'ຄ່າແນວພັນສັດ', amt: 2520, note: 'ຊື້ລູກໄກ່ບ້ານ 140 ໂຕ (ຈ່າຍເງິນສົດ)' },
+    { id: 't4', date: todayStr, type: 'expense', account: 'cash', center: 'overhead', cat: 'ຄ່ານ້ຳ-ຄ່າໄຟ', amt: 840, note: 'ຄ່ານ້ຳ-ໄຟສ່ວນກາງຟາມ' },
+
+    { id: 't5', date: todayStr, type: 'income', account: 'bank', center: 'duck', cat: 'ຂາຍຜົນຜະລິດ', amt: 21600, note: 'ຂາຍໄຂ່ເປັດສົດ 7,200 ໜ່ວຍ' },
+    { id: 't6', date: todayStr, type: 'expense', account: 'bank', center: 'duck', cat: 'ຄ່າຫົວອາຫານ', amt: 11200, note: 'ຄ່າອາຫານເປັດໄຂ່ + ຮຳລະອຽດ' },
+    { id: 't7', date: todayStr, type: 'expense', account: 'cash', center: 'overhead', cat: 'ຄ່າແຮງງານ', amt: 1200, note: 'ຄ່າແຮງງານຄົນງານສ່ວນກາງ' },
+
+    { id: 't8', date: todayStr, type: 'income', account: 'cash', center: 'catfish', cat: 'ຂາຍຜົນຜະລິດ', amt: 12000, note: 'ຈັບຂາຍປາດຸກ 300 ກິໂລ (ຮັບເງິນສົດ)' },
+    { id: 't9', date: todayStr, type: 'expense', account: 'cash', center: 'catfish', cat: 'ຄ່າຫົວອາຫານ', amt: 5400, note: 'ຄ່າອາຫານເມັດປາດຸກ' },
+    { id: 't10', date: todayStr, type: 'expense', account: 'cash', center: 'overhead', cat: 'ຄ່ານ້ຳ-ຄ່າໄຟ', amt: 600, note: 'ຄ່າສູບນ້ຳໝູນວຽນສ່ວນກາງ' },
+
+    { id: 't11', date: todayStr, type: 'income', account: 'bank', center: 'goat', cat: 'ຂາຍຜົນຜະລິດ', amt: 8400, note: 'ຂາຍແນວພັນແພະ 2 ໂຕ + ຝຸ່ນຂີ້ແພະ' },
+    { id: 't12', date: todayStr, type: 'expense', account: 'bank', center: 'goat', cat: 'ຄ່າຫົວອາຫານ', amt: 3600, note: 'ຄ່າອາຫານເສີມແພະ' },
+    { id: 't13', date: todayStr, type: 'expense', account: 'cash', center: 'overhead', cat: 'ຄ່າອຸປະກອນ', amt: 500, note: 'ຄ່າສ້ອມແປງຮົ້ວສ່ວນກາງ' },
+
+    { id: 't14', date: todayStr, type: 'income', account: 'bank', center: 'cattle', cat: 'ຂາຍຜົນຜະລິດ', amt: 12000, note: 'ຂາຍງົວຊີ້ນ 1 ໂຕ' },
+    { id: 't15', date: todayStr, type: 'expense', account: 'bank', center: 'cattle', cat: 'ຄ່າຫົວອາຫານ', amt: 6000, note: 'ຄ່າເຟືອງ + ອາຫານຂົ້ນງົວ' },
+
+    { id: 't16', date: todayStr, type: 'expense', account: 'bank', center: 'overhead', cat: '🔄 ຖອນເງິນສົດ (ປ່ຽນເງິນໂອນເປັນເງິນສົດ)', amt: 3000, note: 'ຖອນເງິນສົດຈາກທະນາຄານມາໄວ້ໃນມື' }
+  ];
+
+  saveTransactions();
+}
+
+function saveTransactions() {
+  localStorage.setItem('farm_transactions', JSON.stringify(transactions));
+  updateAccountBalances();
+  calculateProfitCenters();
+  renderTxTable();
+}
+
+function updateAccountBalances() {
+  let initBank = 50000;
+  let initCash = 10000;
+
+  transactions.forEach(t => {
+    const amt = parseFloat(t.amt) || 0;
+    const cat = t.cat || '';
+
+    if (cat.includes('ຖອນເງິນສົດ') || cat.includes('ถอนเงินสด')) {
+      initBank -= amt;
+      initCash += amt;
+    } else if (cat.includes('ຝາກເງິນສົດ') || cat.includes('ฝากเงินสด')) {
+      initCash -= amt;
+      initBank += amt;
+    } else {
+      const isInc = t.type === 'income';
+      if (t.account === 'bank') {
+        if (isInc) initBank += amt;
+        else initBank -= amt;
+      } else if (t.account === 'cash') {
+        if (isInc) initCash += amt;
+        else initCash -= amt;
+      }
+    }
+  });
+
+  bankBalance = initBank;
+  cashBalance = initCash;
+
+  localStorage.setItem('farm_account_balances', JSON.stringify({ bank: bankBalance, cash: cashBalance }));
+
+  const bBank = document.getElementById('bal-bank-disp');
+  const bCash = document.getElementById('bal-cash-disp');
+  const bTotal = document.getElementById('bal-total-disp');
+
+  if (bBank) bBank.innerText = Math.round(bankBalance).toLocaleString('en-US') + ' ₭';
+  if (bCash) bCash.innerText = Math.round(cashBalance).toLocaleString('en-US') + ' ₭';
+  if (bTotal) bTotal.innerText = Math.round(bankBalance + cashBalance).toLocaleString('en-US') + ' ₭';
+}
+
+function addTransaction(e) {
+  e.preventDefault();
+  const date = document.getElementById('tx-date').value;
+  let type = document.getElementById('tx-type').value;
+  const account = document.getElementById('tx-account').value;
+  const center = document.getElementById('tx-center').value;
+  const cat = document.getElementById('tx-cat').value;
+  const amt = parseFloat(document.getElementById('tx-amt').value) || 0;
+  const note = document.getElementById('tx-note').value;
+
+  if (amt <= 0) {
+    alert('ກະລຸນາໃສ່ຈຳນວນເງິນທີ່ຖືກຕ້ອງ');
+    return;
+  }
+
+  // Adjust type if it is a transfer
+  if (cat.includes('ຖອນເງິນສົດ') || cat.includes('ຝາກເງິນສົດ') || cat.includes('ປ່ຽນເງິນ')) {
+    type = 'expense';
+  }
+
+  const newTx = {
+    id: 'tx_' + Date.now(),
+    date,
+    type,
+    account,
+    center,
+    cat,
+    amt,
+    note
+  };
+
+  transactions.unshift(newTx);
+  saveTransactions();
+
+  document.getElementById('tx-amt').value = '';
+  document.getElementById('tx-note').value = '';
+}
+
+function deleteTransaction(txId) {
+  if (confirm('ທ່ານຕ້ອງການລຶບລາຍການນີ້ແທ້ຫຼືບໍ່? ຍອດເງິນຈະຖືກປັບຄືນອັດຕະໂນມັດ.')) {
+    transactions = transactions.filter(t => t.id !== txId);
+    saveTransactions();
+  }
+}
+
+function resetTransactions() {
+  if (confirm('ທ່ານຕ້ອງການລ້າງຂໍ້ມູນ ແລະ ຣີເຊັດເປັນຄ່າເລີ່ມຕົ້ນແທ້ຫຼືບໍ່?')) {
+    localStorage.removeItem('farm_transactions');
+    localStorage.removeItem('farm_account_balances');
+    initTransactions();
+  }
+}
+
+function calculateProfitCenters() {
+  const centers = [
+    { id: 'chicken', name: '🐔 ໄກ່ (Chicken)' },
+    { id: 'duck', name: '🦆 ເປັດ (Duck)' },
+    { id: 'catfish', name: '🐟 ປາດຸກ (Catfish)' },
+    { id: 'goat', name: '🐐 ແພະ (Goat)' },
+    { id: 'cattle', name: '🐄 ງົວ (Cattle)' }
+  ];
+
+  let grandInc = 0;
+  let grandDirectExp = 0;
+  let grandOverheadExp = 0;
+
+  // Calculate overhead expenses (shared costs)
+  transactions.forEach(t => {
+    const cat = t.cat || '';
+    const isTransfer = cat.includes('ປ່ຽນເງິນ') || cat.includes('ຖອນ') || cat.includes('ຝາກ') || cat.includes('เปลี่ยนเงิน');
+    if (t.type === 'expense' && !isTransfer) {
+      if (t.center === 'overhead' || cat.includes('ຄ່ານ້ຳ-ຄ່າໄຟ') || cat.includes('ຄ່າແຮງງານ') || cat.includes('ຄ່າອຸປະກອນ') || cat.includes('ค่าน้ำค่าไฟ') || cat.includes('ค่าแรงงาน') || cat.includes('ค่าอุปกรณ์')) {
+        grandOverheadExp += (t.amt || 0);
+      }
+    }
+  });
+
+  let tableHtml = '';
+
+  centers.forEach(c => {
+    let inc = 0;
+    let directExp = 0;
+
+    transactions.forEach(t => {
+      const cat = t.cat || '';
+      const isTransfer = cat.includes('ປ່ຽນເງິນ') || cat.includes('ຖອນ') || cat.includes('ຝາກ') || cat.includes('เปลี่ยนเงิน');
+      if (t.center === c.id && !isTransfer) {
+        if (t.type === 'income') {
+          inc += (t.amt || 0);
+        } else if (t.type === 'expense') {
+          const isOverheadCat = cat.includes('ຄ່ານ້ຳ-ຄ່າໄຟ') || cat.includes('ຄ່າແຮງງານ') || cat.includes('ຄ່າອຸປະກອນ') || cat.includes('ค่าน้ำค่าไฟ') || cat.includes('ค่าแรงงาน') || cat.includes('ค่าอุปกรณ์');
+          if (!isOverheadCat) {
+            directExp += (t.amt || 0);
+          }
+        }
+      }
+    });
+
+    const netProfit = inc - directExp;
+    const marginPct = inc > 0 ? ((netProfit / inc) * 100).toFixed(1) : 0;
+
+    grandInc += inc;
+    grandDirectExp += directExp;
+
+    const profitEl = document.getElementById(`pc-profit-${c.id}`);
+    const subEl = document.getElementById(`pc-sub-${c.id}`);
+
+    if (profitEl) {
+      profitEl.innerText = (netProfit >= 0 ? '+' : '') + Math.round(netProfit).toLocaleString('en-US') + ' ₭';
+      profitEl.style.color = netProfit >= 0 ? 'var(--success)' : 'var(--danger)';
+    }
+    if (subEl) {
+      subEl.innerText = `ຮັບ: ${Math.round(inc).toLocaleString('en-US')} | ຈ່າຍ: ${Math.round(directExp).toLocaleString('en-US')}`;
+    }
+
+    let statusBadge = '<span class="badge badge-success">ກຳໄລດີ</span>';
+    if (netProfit < 0) statusBadge = '<span class="badge badge-danger">ຂາດທຶນ</span>';
+    else if (marginPct > 40) statusBadge = '<span class="badge badge-success">ຄຸ້ມຄ່າສູງ</span>';
+
+    tableHtml += `
+      <tr>
+        <td><strong>${c.name}</strong></td>
+        <td style="text-align:right;">${Math.round(inc).toLocaleString('en-US')} ₭</td>
+        <td style="text-align:right;">${Math.round(directExp).toLocaleString('en-US')} ₭</td>
+        <td style="text-align:right; font-weight:700; color:${netProfit >= 0 ? 'var(--success)' : 'var(--danger)'};">
+          ${netProfit >= 0 ? '+' : ''}${Math.round(netProfit).toLocaleString('en-US')} ₭
+        </td>
+        <td style="text-align:center;"><span class="badge ${marginPct >= 0 ? 'badge-success' : 'badge-danger'}">${marginPct}%</span></td>
+        <td style="text-align:center;">${statusBadge}</td>
+      </tr>
+    `;
+  });
+
+  const grandTotalExp = grandDirectExp + grandOverheadExp;
+  const grandNetProfit = grandInc - grandTotalExp;
+  const grandMarginPct = grandInc > 0 ? ((grandNetProfit / grandInc) * 100).toFixed(1) : 0;
+
+  tableHtml += `
+    <tr style="background:#fffbe6; font-weight:600;">
+      <td><strong>🏢 ລວມຕົ້ນທຶນປັນສ່ວນສ່ວນກາງ (Shared Overheads: ນ້ຳ/ໄຟ/ແຮງງານ/ອຸປະກອນ)</strong></td>
+      <td style="text-align:right;">-</td>
+      <td style="text-align:right; color:var(--danger);">${Math.round(grandOverheadExp).toLocaleString('en-US')} ₭</td>
+      <td style="text-align:right; color:var(--danger); font-weight:700;">-${Math.round(grandOverheadExp).toLocaleString('en-US')} ₭</td>
+      <td style="text-align:center;">-</td>
+      <td style="text-align:center;"><span class="badge badge-warning">ສ່ວນກາງ</span></td>
+    </tr>
+    <tr style="background:#e2e8f0; font-weight:700; font-size:15px;">
+      <td><strong>📊 ລວມທັງໝົດທົ່ວຟາມສຸດທິ (Total Net Farm P&L)</strong></td>
+      <td style="text-align:right; color:var(--success);">${Math.round(grandInc).toLocaleString('en-US')} ₭</td>
+      <td style="text-align:right; color:var(--danger);">${Math.round(grandTotalExp).toLocaleString('en-US')} ₭</td>
+      <td style="text-align:right; color:${grandNetProfit >= 0 ? 'var(--primary)' : 'var(--danger)'}; font-size:17px;">
+        ${grandNetProfit >= 0 ? '+' : ''}${Math.round(grandNetProfit).toLocaleString('en-US')} ₭
+      </td>
+      <td style="text-align:center;"><span class="badge badge-success" style="font-size:13px;">${grandMarginPct}%</span></td>
+      <td style="text-align:center;"><span class="badge badge-success">ພາບລວມຄຸ້ມຄ່າ</span></td>
+    </tr>
+  `;
+
+  const pnlTbody = document.getElementById('pnl-live-tbody');
+  if (pnlTbody) pnlTbody.innerHTML = tableHtml;
+
+  // Update top metrics
+  const topInc = document.getElementById('top-grand-income');
+  const topExp = document.getElementById('top-grand-expense');
+  const topNet = document.getElementById('top-grand-net');
+  const topMargin = document.getElementById('top-grand-margin');
+
+  if (topInc) topInc.innerText = Math.round(grandInc).toLocaleString('en-US') + ' ₭';
+  if (topExp) topExp.innerText = Math.round(grandTotalExp).toLocaleString('en-US') + ' ₭';
+  if (topNet) {
+    topNet.innerText = (grandNetProfit >= 0 ? '+' : '') + Math.round(grandNetProfit).toLocaleString('en-US') + ' ₭';
+    topNet.style.color = grandNetProfit >= 0 ? 'var(--primary)' : 'var(--danger)';
+  }
+  if (topMargin) topMargin.innerText = `Margin: ${grandMarginPct}%`;
+}
+
+function renderTxTable() {
+  const tbody = document.getElementById('tx-tbody');
+  if (!tbody) return;
+
+  const filterCenter = document.getElementById('tx-filter') ? document.getElementById('tx-filter').value : 'all';
+  const filterType = document.getElementById('tx-filter-type') ? document.getElementById('tx-filter-type').value : 'all';
+
+  let filtered = transactions;
+
+  if (filterCenter !== 'all') {
+    filtered = filtered.filter(t => t.center === filterCenter);
+  }
+
+  if (filterType !== 'all') {
+    if (filterType === 'transfer') {
+      filtered = filtered.filter(t => (t.cat && (t.cat.includes('ປ່ຽນເງິນ') || t.cat.includes('ຖອນ') || t.cat.includes('ຝາກ') || t.cat.includes('เปลี่ยนเงิน'))));
+    } else {
+      filtered = filtered.filter(t => t.type === filterType && !(t.cat && (t.cat.includes('ປ່ຽນເງິນ') || t.cat.includes('ຖອນ') || t.cat.includes('ຝາກ') || t.cat.includes('เปลี่ยนเงิน'))));
+    }
+  }
+
+  let html = '';
+  filtered.forEach(t => {
+    const cat = t.cat || '';
+    const isTransfer = cat.includes('ປ່ຽນເງິນ') || cat.includes('ຖອນ') || cat.includes('ຝາກ') || cat.includes('เปลี่ยนเงิน');
+    const isInc = t.type === 'income';
+
+    let color = isInc ? 'var(--success)' : 'var(--danger)';
+    let sign = isInc ? '+' : '-';
+    let typeBadge = isInc ? '<span class="badge badge-success">ລາຍຮັບ</span>' : '<span class="badge badge-danger">ລາຍຈ່າຍ</span>';
+
+    if (isTransfer) {
+      color = 'var(--info)';
+      sign = '🔄 ';
+      typeBadge = '<span class="badge badge-info">ໂອນປ່ຽນບັນຊີ</span>';
+    }
+
+    html += `
+      <tr>
+        <td style="font-size:12px; color:var(--mute); white-space:nowrap;">${t.date}</td>
+        <td>
+          <span class="badge" style="background:#f1f5f9; color:#334155;">${centerNames[t.center] || t.center}</span>
+          <span class="badge badge-warning" style="margin-left:4px;">${accountNames[t.account] || 'ທະນາຄານ'}</span>
+        </td>
+        <td>
+          ${typeBadge} <strong>${cat}</strong>
+          <div style="font-size:12px; color:var(--mute); margin-top:2px;">${t.note || ''}</div>
+        </td>
+        <td style="text-align:right; font-weight:700; color:${color}; white-space:nowrap;">
+          ${sign}${(t.amt || 0).toLocaleString('en-US')} ₭
+        </td>
+        <td style="text-align:center;" class="no-print">
+          <button class="btn-danger" onclick="deleteTransaction('${t.id}')" title="ລຶບລາຍການ">&times;</button>
+        </td>
+      </tr>
+    `;
+  });
+
+  if (filtered.length === 0) {
+    html = `<tr><td colspan="5" style="text-align:center; color:var(--mute); padding:24px;">ບໍ່ມີລາຍການບັນທຶກໃນເງື່ອນໄຂນີ້</td></tr>`;
+  }
+
+  tbody.innerHTML = html;
+}
+
+function exportCSV() {
+  if (!transactions.length) {
+    alert('ບໍ່ມີຂໍ້ມູນບັນທຶກສຳລັບ Export');
+    return;
+  }
+
+  let csv = '\uFEFFວັນທີ,ປະເພດ,ຊ່ອງທາງ,ສູນກຳໄລ,ໝວດໝູ່,ຈຳນວນເງິນ,ໝາຍເຫດ\n';
+  transactions.forEach(t => {
+    const date = t.date || '';
+    const type = t.type || '';
+    const acc = accountNames[t.account] || t.account || '';
+    const center = centerNames[t.center] || t.center || '';
+    const cat = (t.cat || '').replace(/"/g, '""');
+    const amt = t.amt || 0;
+    const note = (t.note || '').replace(/"/g, '""');
+    csv += `"${date}","${type}","${acc}","${center}","${cat}",${amt},"${note}"\n`;
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `farm_accounting_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+window.onload = function() {
+  initTransactions();
+};
+</script>
+
+</body>
+</html>

@@ -1,0 +1,182 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Global Safety Net (Default Deny)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 2. Reusable Hardened Primitives
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    // 3. Entity Validation Blueprints
+    function isValidTransaction(data) {
+      return data.keys().hasAll([
+          'userId',
+          'date',
+          'type',
+          'account',
+          'center',
+          'cat',
+          'amt',
+          'note',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'userId',
+          'date',
+          'type',
+          'account',
+          'center',
+          'cat',
+          'amt',
+          'note',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.userId is string
+        && data.userId.size() >= 1
+        && data.userId.size() <= 128
+        && data.userId.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.userId == request.auth.uid
+        && data.date is string
+        && data.date.size() == 10
+        && data.date.matches('^\\d{4}-\\d{2}-\\d{2}$')
+        && data.type is string
+        && data.type.size() <= 20
+        && data.type in ['income', 'expense', 'transfer']
+        && data.account is string
+        && data.account.size() <= 20
+        && data.account in ['bank', 'cash']
+        && data.center is string
+        && data.center.size() <= 20
+        && data.center in ['chicken', 'overhead']
+        && data.cat is string
+        && data.cat.size() >= 1
+        && data.cat.size() <= 120
+        && (data.amt is int || data.amt is float)
+        && data.amt > 0
+        && data.amt <= 1000000000000
+        && data.note is string
+        && data.note.size() <= 500
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidWalletSetting(data) {
+      return data.keys().hasAll([
+          'userId',
+          'initialBank',
+          'initialCash',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'userId',
+          'initialBank',
+          'initialCash',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.userId is string
+        && data.userId.size() >= 1
+        && data.userId.size() <= 128
+        && data.userId.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.userId == request.auth.uid
+        && (data.initialBank is int || data.initialBank is float)
+        && data.initialBank >= 0
+        && data.initialBank <= 1000000000000
+        && (data.initialCash is int || data.initialCash is float)
+        && data.initialCash >= 0
+        && data.initialCash <= 1000000000000
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    // 4. Collection Rules: /transactions/{transactionId}
+    match /transactions/{transactionId} {
+      allow get: if isSignedIn() && isValidId(transactionId) && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && existing().userId == request.auth.uid;
+
+      allow create: if isSignedIn()
+        && isValidId(transactionId)
+        && isValidTransaction(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isSignedIn()
+        && isValidId(transactionId)
+        && isValidTransaction(incoming())
+        && existing().userId == request.auth.uid
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'date',
+          'type',
+          'account',
+          'center',
+          'cat',
+          'amt',
+          'note',
+          'updatedAt'
+        ]);
+
+      allow delete: if isSignedIn()
+        && isValidId(transactionId)
+        && existing().userId == request.auth.uid;
+    }
+
+    // 5. Collection Rules: /wallet_settings/{userId}
+    match /wallet_settings/{userId} {
+      allow get: if isSignedIn()
+        && isValidId(userId)
+        && userId == request.auth.uid
+        && existing().userId == request.auth.uid;
+
+      allow list: if false;
+
+      allow create: if isSignedIn()
+        && isValidId(userId)
+        && userId == request.auth.uid
+        && isValidWalletSetting(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isSignedIn()
+        && isValidId(userId)
+        && userId == request.auth.uid
+        && isValidWalletSetting(incoming())
+        && existing().userId == request.auth.uid
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'initialBank',
+          'initialCash',
+          'updatedAt'
+        ]);
+
+      allow delete: if isSignedIn()
+        && isValidId(userId)
+        && userId == request.auth.uid
+        && existing().userId == request.auth.uid;
+    }
+  }
+}
